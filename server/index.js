@@ -2,7 +2,7 @@ const { exec } = require('child_process');
 const si = require('systeminformation');
 const port = process.env.PORT || 3002;
 const express = require('express');
-const ngrok = require('ngrok');
+// const ngrok = require('ngrok');
 const https = require('https');
 const path = require('path');
 const cors = require('cors');
@@ -83,4 +83,4 @@ async function connectNgrok() {
 
 app.listen(port, function () { console.log('App listening on port', port) });
 
-connectNgrok();
+// connectNgrok();
