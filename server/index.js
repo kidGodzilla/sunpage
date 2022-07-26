@@ -13,9 +13,7 @@ function c2f(c) {
   return c * 9/5 + 32
 }
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname+'/index.html'));
-});
+app.use(express.static('public'));
 
 app.get('/message', async (req, res) => {
     let { percentage, temperature } = last_battery_status || {};

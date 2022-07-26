@@ -711,10 +711,10 @@
         } catch(e){}
 
         // Get battery status and create / update message
-        let { percentage, temperature } = last_battery || {};
+        let { percentage, temperature, status } = last_battery || {};
 
         if (temperature) message += `<br>Current temperature: ${ (c2f(temperature)).toFixed(1) }˚f.`;
-        if (percentage) message += `<br>Battery percent: ${ percentage }%.`;
+        if (percentage) message += `<br>Battery percent: ${ percentage }% (${ status }).`;
 
         var test = `☀️<br>Hello! It's 1:49:36 PM.<br>The sun is shining and I'm online!<br>Current temperature: 113.7˚f.<br>Battery percent: 81%.`;
 

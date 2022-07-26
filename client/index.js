@@ -65,7 +65,7 @@ app.use(function (req, res, next) {
                         headers[res._headerNames[name]] = res._headers[name];
                         return headers;
                     }, {})
-                }, 30 * 1000);
+                }, 30);
             }
         };
 
