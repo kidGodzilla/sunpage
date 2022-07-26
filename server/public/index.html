@@ -91,6 +91,12 @@
         left: 10vw;
         top: 50px;
       }
+      h1 span { font-size: 3rem }
+
+      @media screen and (min-width: 1024px) {
+          h1 span { font-size: 4rem }
+          h1 { font-size: 3rem }
+      }
   </style>
 
 </head>
@@ -661,9 +667,7 @@
       return Math.floor(Math.random() * (max - min + 1) + min)
     }
 
-    async function placeScroll () {
-        const D = new Date();
-        const h = D.getHours(), m = D.getMinutes();
+    function setScroll(h, m) {
         let fraction = m / 60;
 
         if (h === 5) {
@@ -686,6 +690,12 @@
             let val = (h / 20) * 1420 + 80;
             document.querySelector('html, body').scrollTop = val;
         }
+    }
+
+    async function placeScroll () {
+        const D = new Date();
+        let h = D.getHours(), m = D.getMinutes();
+        if (!window.fetch_completed) setScroll(h, m);
 
         let last_battery = {};
 
@@ -693,7 +703,11 @@
 
         const sunny = h >= 6 && h <= 20;
 
-        let message = `${ sunny ? '☀️':'🌝' }<br>Hello! It's ${ new Date().toLocaleTimeString() }.<br>The ${ sunny ? 'sun is shining':'sun has set' } and I'm online!`;
+        let sun_status = sunny ? 'sun is shining':'sun has set';
+        if (h === 20) sun_status = 'sun is setting';
+        if (h === 5) sun_status = 'sun is rising';
+
+        let message = `<span>${ sunny ? '☀️':'🌝' }</span><br>Hello! It's ${ new Date().toLocaleTimeString() }.<br>The ${ sun_status } and I'm online!`;
 
         if (!document.querySelector('h1').innerHTML) document.querySelector('h1').innerHTML = message;
 
@@ -702,12 +716,14 @@
         }
 
         try {
-            const response = await fetch('/status', {
-                headers: { 'Accept': 'application/json' }
-            });
+            const response = await fetch('/status', { headers: { 'Accept': 'application/json' } });
             const json = await response.json();
-            let { battery } = json;
+            let { battery, time } = json;
+
             if (typeof battery === 'object') last_battery = battery;
+            if (typeof time === 'object') setScroll(time.h, time.m);
+            window.fetch_completed = 1;
+
         } catch(e){}
 
         // Get battery status and create / update message
@@ -715,8 +731,6 @@
 
         if (temperature) message += `<br>Current temperature: ${ (c2f(temperature)).toFixed(1) }˚f.`;
         if (percentage) message += `<br>Battery percent: ${ percentage }% (${ status }).`;
-
-        var test = `☀️<br>Hello! It's 1:49:36 PM.<br>The sun is shining and I'm online!<br>Current temperature: 113.7˚f.<br>Battery percent: 81%.`;
 
         document.querySelector('h1').innerHTML = message;
     }
@@ -729,12 +743,9 @@
 
     setInterval(() => {
         let digit = Math.round(document.querySelector('html, body').scrollTop / 5432 * 15);
-        if (digit === 10) digit = 'a';
-        if (digit === 11) digit = 'b';
-        if (digit === 12) digit = 'c';
-        if (digit === 13) digit = 'd';
-        if (digit === 14) digit = 'e';
-        if (digit === 15) digit = 'f';
+        let digits = '01234567890abcdef'.split('');
+        digit = digits[digit];
+
         document.querySelector('h1').style.color = `#${ digit }${ digit }${ digit }`;
     }, 99);
 </script>
