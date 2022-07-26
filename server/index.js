@@ -2,7 +2,7 @@ const { exec } = require('child_process');
 const si = require('systeminformation');
 const port = process.env.PORT || 3002;
 const express = require('express');
-// const ngrok = require('ngrok');
+const ngrok = require('./ngrok');
 const https = require('https');
 const path = require('path');
 const cors = require('cors');
@@ -68,6 +68,10 @@ app.get('/status', async (req, res) => {
     if (!data.battery || !data.battery.hasBattery) {
         data.battery = await getBatteryStatus();
     }
+
+    let h = new Date().getHours() - 7, m = new Date().getMinutes();
+    if (h < 0) h += 24;
+    data.time = { h, m };
 
     res.json(data);
 });

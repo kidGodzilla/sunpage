@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "b": "npm i -s \"https://github.com/bubenshchykov/ngrok.git#ngrok-bin-v3\"",
     "deploy": "git push dokku main:master",
     "server": "node server/.",
     "start": "node client/."
