@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "deploy": "git push dokku main:master",
+    "serv": "node server/. & ../ngrok http 3002 | node r.js",
     "server": "node server/.",
     "start": "node client/."
   },
