@@ -1,11 +1,12 @@
-const { exec } = require('child_process');
+const { exec, spawn } = require('child_process');
 const si = require('systeminformation');
 const port = process.env.PORT || 3002;
 const express = require('express');
-const ngrok = require('./ngrok');
+// const ngrok = require('./ngrok');
 const https = require('https');
 const path = require('path');
 const cors = require('cors');
+const os = require('os');
 const app = express();
 app.use(cors());
 
@@ -17,8 +18,7 @@ app.use(express.static('public'));
 
 app.get('/message', async (req, res) => {
     let { percentage, temperature } = last_battery_status || {};
-    let h = new Date().getHours() - 7;
-    if (h < 0) h += 24;
+    let h = new Date().getHours();
     const sunny = h >= 6 && h <= 21;
 
     let message = `Hello! It's ${ new Date().toLocaleTimeString() }. The ${ sunny ? 'sun is shining':'sun has set' } and I'm online!`;
@@ -69,22 +69,30 @@ app.get('/status', async (req, res) => {
         data.battery = await getBatteryStatus();
     }
 
-    let h = new Date().getHours() - 7, m = new Date().getMinutes();
-    if (h < 0) h += 24;
+    let h = new Date().getHours(), m = new Date().getMinutes();
+    // if (h < 0) h += 24;
     data.time = { h, m };
 
     res.json(data);
 });
 
 async function connectNgrok() {
-    if (process.env.TOKEN) await ngrok.authtoken(process.env.TOKEN);
-    const url = await ngrok.connect(port);
+    if (!process.env.TOKEN) return;
 
-    console.log('NGROK: \n\n', url);
+    try {
+        const url = await ngrok.connect({
+            authtoken: process.env.TOKEN,
+            addr: port,
+            onStatusChange: console.log,
+            onLogEvent: console.log,
+        });
 
-    https.get(`https://sun.servers.do/update_ngrok?url=${ url }`);
+        console.log('NGROK: \n\n', url);
+
+        https.get(`https://sun.servers.do/update_ngrok?url=${ url }`);
+    } catch(e) { console.log(e) }
 }
 
 app.listen(port, function () { console.log('App listening on port', port) });
 
-// connectNgrok();
+connectNgrok();
